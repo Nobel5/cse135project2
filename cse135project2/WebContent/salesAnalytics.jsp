@@ -14,9 +14,9 @@
 </head>
 <body>
 	<%     try{
-		   System.out.println("Over here");
+		   //System.out.println("Over here");
 		   Class.forName("org.postgresql.Driver");
-		   System.out.println("nope");
+		   //System.out.println("nope");
 		   Connection conn = null;
 		   conn = DriverManager.getConnection(
 					"jdbc:postgresql://localhost:5432/postgres", "postgres", "password");
@@ -83,7 +83,7 @@
 						<option>West Virginia</option>
 						<option>Wisconsin</option>
 						<option>Wyoming</option>
-				</select> Category <select>
+				</select> Category <select id="categories" name="categories">
 						<option selected="selected">All</option>
 						<%
 							try{
@@ -93,12 +93,12 @@
 								while(rs.next()){
 									%><option><%=rs.getString("name")%>
 						</option>
-						<% 
+						<% //System.out.println("maybe here");
 								}
 							}
-						catch (SQLException sqle) {
+						catch (SQLException se) {
 							System.out.println("gets into categories search");
-						    out.println(sqle.getMessage());
+						    out.println(se.getMessage());
 						}
 						%>
 				</select> Age <select name="age">
@@ -117,7 +117,58 @@
 			</table>
 		</form>
 	</center>
-	<%
+	<% 
+		int productsDis=0;
+		String newTable=request.getParameter("age");
+		String cat=request.getParameter("categories");
+		
+		if(newTable!=null){
+			%><table border="1">
+		<%
+			try{
+				ResultSet rs=null;
+				Statement s=conn.createStatement();
+				String que=null;
+				if(!cat.equals("All")){
+					que="SELECT products.name,products.id FROM products join categories on products.cid=categories.id"+ 
+							"WHERE products.id>0 " +
+							"AND products.id<11 AND categories.name= "+"\""+cat+"\""+" ORDER BY products.id";
+				}
+				else{
+					System.out.println("dance");
+					que="SELECT products.name, products.id FROM products WHERE products.id>0" +
+							" AND products.id<11  ORDER BY products.id";
+				}
+				System.out.println("pls be here abc");
+				rs=s.executeQuery(que);
+				System.out.println(que);
+				System.out.println("error after this");
+				if(rs.next()){
+					%><tr><th></th>
+		<%
+				for(int i=1;i<=10;i++){
+					if(Integer.parseInt(rs.getString("id"))==i){
+						%><th><%=rs.getString("name") %></th>
+		<% 
+						rs.next();
+				}
+					else{
+						%><th></th>
+		<%
+					}
+				}
+			}
+				%></tr><% 
+				
+				%></table><%
+			}
+			catch (SQLException sqle) {
+				
+			    out.println(sqle.getMessage());
+			}
+		}
+	%>
+		<%
 conn.setAutoCommit(true);
  conn.close();
 } catch (SQLException sqle) {
@@ -128,6 +179,6 @@ conn.setAutoCommit(true);
     out.println(e.getMessage());
 }
 %>
-
+	
 </body>
 </html>
