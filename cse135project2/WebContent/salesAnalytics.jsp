@@ -23,15 +23,15 @@
 		   conn.setAutoCommit(false);
  %>
 	<center>
-		<form>
-			<table width="100%">
+		<form action="salesAnalytics.jsp" method="post">
+			<table>
 				<tr>
-					<select id="cust" name="cust">
-						<option selected="selected" value="customers">Customers</option>
-						<option value="states">States</option>
-					</select>
-					<br> State
-					<select id="state" name="state">
+					<td align="center"><select id="cust" name="cust">
+							<option selected="selected" value="customers">Customers</option>
+							<option value="states">States</option>
+					</select></td>
+				</tr>
+				<td align="center">State <select id="state" name="state">
 						<option selected="selected">All</option>
 						<option>Alabama</option>
 						<option>Alaska</option>
@@ -83,8 +83,7 @@
 						<option>West Virginia</option>
 						<option>Wisconsin</option>
 						<option>Wyoming</option>
-					</select> Category
-					<select>
+				</select> Category <select>
 						<option selected="selected">All</option>
 						<%
 							try{
@@ -102,14 +101,18 @@
 						    out.println(sqle.getMessage());
 						}
 						%>
-					</select> Age
-					<select name="age">
+				</select> Age <select name="age">
 						<option selected="selected">All</option>
 						<option>12-18</option>
 						<option>18-45</option>
 						<option>45-65</option>
 						<option>65+</option>
-					</select>
+				</select>
+				</td>
+				</tr>
+				<tr>
+					<td align="center"><input type="submit" name="value"
+						value="Run Query" /></td>
 				</tr>
 			</table>
 		</form>
