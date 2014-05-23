@@ -120,7 +120,7 @@ if(name!=null && age!=null && role!=null && state!=null)
 		{
 			out.println("Fail, can not access the database, please check the database status first! Please <a href='signup.jsp' target='_self'>register</a> again.");
 		}
-		
+		conn.close();
 	}
 	catch(Exception e)
 	{
@@ -128,7 +128,7 @@ if(name!=null && age!=null && role!=null && state!=null)
 	}
 	finally
 	{
-		conn.close();
+		
 	}
 }
 %>
