@@ -72,4 +72,12 @@ INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 9 , 5, 520);
 INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 5 , 3, 488);
 INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 1, 1, 1200);
 
+CREATE TABLE carts (
+    id          SERIAL PRIMARY KEY,
+    uid         INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    pid         INTEGER REFERENCES products (id) ON DELETE CASCADE,
+    quantity    INTEGER NOT NULL,
+    price	INTEGER NOT NULL
+);
+
 SELECT * FROM sales order by id desc;
