@@ -123,9 +123,10 @@
 		String cat=request.getParameter("categories");
 		
 		if(newTable!=null){
-			%><table border="1">
-		<%
+			
 			try{
+				%><table border="1">
+		<%
 				ResultSet rs=null;
 				Statement s=conn.createStatement();
 				String que=null;
@@ -144,23 +145,28 @@
 				System.out.println(que);
 				System.out.println("error after this");
 				if(rs.next()){
-					%><tr><th></th>
-		<%
+					%><tr>
+			<th></th>
+			<%
 				for(int i=1;i<=10;i++){
 					if(Integer.parseInt(rs.getString("id"))==i){
 						%><th><%=rs.getString("name") %></th>
-		<% 
+			<% 
 						rs.next();
 				}
 					else{
 						%><th></th>
-		<%
+			<%
 					}
 				}
 			}
-				%></tr><% 
+				%>
+		</tr>
+		<% 
 				
-				%></table><%
+				%>
+	</table>
+	<%
 			}
 			catch (SQLException sqle) {
 				
@@ -168,7 +174,7 @@
 			}
 		}
 	%>
-		<%
+	<%
 conn.setAutoCommit(true);
  conn.close();
 } catch (SQLException sqle) {
@@ -179,6 +185,6 @@ conn.setAutoCommit(true);
     out.println(e.getMessage());
 }
 %>
-	
+
 </body>
 </html>
