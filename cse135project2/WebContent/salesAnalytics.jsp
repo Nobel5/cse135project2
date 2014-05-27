@@ -101,6 +101,7 @@
 						    out.println(se.getMessage());
 						}
 						%>
+						<input type="hidden" name="newTable" value="new"></input>
 				</select> Age <select name="age">
 						<option selected="selected">All</option>
 						<option>12-18</option>
@@ -119,14 +120,20 @@
 	</center>
 	<% 
 		int productsDis=0;
-		String newTable=request.getParameter("age");
+		String newTable=request.getParameter("newTable");
+		String age = request.getParameter("age");
 		String cat=request.getParameter("categories");
+		String lastname=request.getParameter("lastname");
+		System.out.println(lastname);
+		String num=request.getParameter("num");
+		String states=request.getParameter("state");
 		
 		if(newTable!=null){
 			
 			try{
 				%><table border="1">
 		<%
+				System.out.println("keep going");
 				ResultSet rs=null;
 				Statement s=conn.createStatement();
 				String que=null;
@@ -160,18 +167,344 @@
 					}
 				}
 			}
+				
 				%>
 		</tr>
 		<% 
+		ResultSet rTotal=null;
+		ResultSet matrix=null;
+		String last;
+		Statement mTotal=conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+		        ResultSet.CONCUR_READ_ONLY);
+		Statement sTotal=conn.createStatement();
+		String total="SELECT users.name, SUM(sales.quantity*sales.price) as sq "+
+		"FROM users LEFT OUTER JOIN sales ON sales.uid=users.id "+
+		"LEFT OUTER JOIN products on products.id = sales.pid";
+		String mat="SELECT users.name, products.name,products.id,sum(sales.quantity*sales.price) AS pi "+
+		" FROM users LEFT OUTER JOIN sales on sales.uid=users.id LEFT OUTER JOIN products on sales.pid=products.id ";
+		if(!cat.equals("All")){
+			total=total+" JOIN categories on categories.id = products.cid ";
+		}
+		int d=0;
+		String where=" WHERE ";
+		String and=" AND ";
+		
+		
+		String comb="";
+		if(!age.equals("All")&&!age.equals("65+")){
+			comb=where+"user.age > "+age.substring(0,2)+and+"user.age <= "+age.substring(3);
+			d=1;
+			if(!states.equals("ALL")){
+				comb=comb+and+" user.state ="+"\""+states+"\" ";
+			}
+			if(!cat.equals("All")){
+				comb=comb+and+" categories.name="+"\""+cat+"\" ";		
+			}
+		}
+		else if(!age.equals("All")&&age.equals("65+")){
+			comb=where+"user.age > "+age.substring(0,2);
+			d=1;
+			if(!states.equals("ALL")){
+				comb=comb+and+" user.state ="+"\""+states+"\" ";
+			}
+			if(!cat.equals("All")){
+				comb=comb+and+" categories.name="+"\""+cat+"\"";		
+			}
+		}
+		else if(age.equals("All")&&(!states.equals("All"))){
+			comb=where+" user.state ="+"\""+states+"\" ";
+			d=1;
+			if(!cat.equals("All")){
+				comb=comb+and+" categories.name="+"\""+cat+"\" ";		
+			}
+		}
+		else if(age.equals("All")&&states.equals("ALL")&&(!cat.equals("All"))){
+			comb=where+" categories.name="+"\""+cat+"\" ";
+			d=1;
+		}
+		String nextTable;
+		String nextTwenty;
+		if(d==1){
+			nextTable=mat+comb+
+					 " GROUP BY users.name,products.id, products.name "+
+						" ORDER BY users.name,products.id,products.name ASC ";
+			mat=mat+comb+and+" products.id>=1 AND products.id<=10 "+
+					 " GROUP BY users.name,products.id, products.name "+
+						" ORDER BY users.name,products.id,products.name ASC "+" LIMIT 200";
+			
+		}
+		else{
+			nextTable=mat+comb+
+					 " GROUP BY users.name,products.id, products.name "+
+						" ORDER BY users.name,products.id,products.name ASC ";
+			mat=mat+comb+where+" products.id>=1 AND products.id<=10"+
+		 " GROUP BY users.name,products.id, products.name "+
+			" ORDER BY users.name,products.id,products.name ASC "+" LIMIT 200";
+			
+		}
+		String fir=comb+" GROUP BY users.name ORDER BY users.name LIMIT 20";
+		nextTwenty=total+comb+" GROUP BY users.name ORDER BY users.name ";
+		System.out.println("STATEMENT 1\n"+total+fir);
+		System.out.println("STATEMENT 2\n"+mat);
+		rTotal=sTotal.executeQuery(total+fir);
+		matrix=mTotal.executeQuery(mat);
+		last="";
+		for(int i=1;i<=20;i++){
+			if(rTotal.next()){
+				last=rTotal.getString("name");
+			%>
+			<tr>
+			<td><%=rTotal.getString("name") %>(<%=rTotal.getString("sq") %>)</td>
+			<%
 				
+				for(int j=1;j<=10;j++){
+					if(matrix.next()){
+						if(matrix.getString("name").equals(rTotal.getString("name"))){
+							if(matrix.getInt("id")==j){
+								%><td><%=matrix.getString("pi") %></td><% 
+							}
+							else{
+								%><td>0</td><%
+								matrix.previous();
+							}
+						}
+						else{
+							matrix.previous();
+							%><td>0</td><%
+						}
+					}
+					else
+					%><td>0</td><%
+				}
+			%>
+			
+			</tr>
+			
+			<% }
+			else{
+				break;
+			}
+			
+		}
+		rTotal=sTotal.executeQuery(total+fir);
+		matrix=mTotal.executeQuery(mat);
+	    conn.setAutoCommit(true);
+		conn.setAutoCommit(false);  
+		Statement pie=conn.createStatement();
+		Statement pieEater=conn.createStatement();
+		try{
+			pie.executeUpdate("DROP TABLE tempMatrix");
+			pieEater.executeUpdate("DROP TABLE tempCol");
+		}catch (SQLException sqle) {
+			out.println(sqle.getMessage());
+		}
+		conn.setAutoCommit(true);
+		conn.setAutoCommit(false);  
+		
+		System.out.println("begin");
+		Statement f=conn.createStatement();
+		Statement g=conn.createStatement();
+		f.executeUpdate("CREATE TABLE tempMatrix("+
+		" name TEXT, "+
+				"  pid         INTEGER, "+
+		" total INTEGER );");
+		System.out.println("1");
+		g.executeUpdate("CREATE TABLE tempCol("+
+				" name TEXT, "+
+				" total INTEGER );");
+		System.out.println("2");
+		System.out.println("STATEMENT 3\n"+nextTwenty);
+		conn.setAutoCommit(true);
+		conn.setAutoCommit(false);
+		Statement status=conn.createStatement();
+		ResultSet bob=status.executeQuery(nextTwenty);
+		System.out.println("STATEMENT 4\n"+nextTable);
+		Statement st=conn.createStatement();
+		ResultSet sam=st.executeQuery(nextTable);
+		System.out.println("3");
+		while(bob.next()){
+			String name=bob.getString("name");
+			String sum=bob.getString("sq");
+			if(bob.getString("sq")==null){
+				sum="0";
+			}
+			System.out.println("INSERT INTO tempCol(name,total) VALUES(\""+name+"\","+sum+")");
+			sTotal.execute("INSERT INTO tempCol(name,total) VALUES(\'"+name+"\',"+sum+")");
+			System.out.println("past it");
+		}
+		System.out.println("4");
+		while(sam.next()){
+			String name=sam.getString("name");
+			String pid= sam.getString("id");
+			String sum=sam.getString("pi");
+			Statement gg=conn.createStatement();
+			System.out.println("INSERT INTO tempMatrix(name,pid,total) VALUES(\""+name+"\","+pid+","+sum+")");
+			gg.executeUpdate("INSERT INTO tempMatrix(name,pid,total) VALUES(\'"+name+"\',"+pid+","+sum+")");
+			
+		}
+		System.out.println("5");
+		%>
+			</table>
+			<form action="salesAnalytics.jsp" method="post">
+			<input type="hidden" name="lastname" value="<%=last%>"></input>
+			<input type="hidden" name="num" value="1"></input>
+			<input type="hidden" name="age" value="<%=age%>"></input>
+			<input type="hidden" name="state" value="<%=cat%>"></input>
+			<input type="hidden" name="categories" value="<%=cat%>"></input>
+			<button type="submit">Next 20 names</button>
+			</form>
+			<form action="salesAnalytics.jsp" method="post">
+			<input type="hidden" name="lastname" value="a"></input>
+			<input type="hidden" name="num" value="11"></input>
+			<input type="hidden" name="age" value="<%=age%>"></input>
+			<input type="hidden" name="state" value="<%=cat%>"></input>
+			<input type="hidden" name="categories" value="<%=cat%>"></input>
+			<button type="submit">Next 10 products</button>
+			</form>
+		<%
+		
+		
+		
 				%>
-	</table>
+	
 	<%
 			}
 			catch (SQLException sqle) {
 				
 			    out.println(sqle.getMessage());
 			}
+		}
+		else if(lastname!=null){
+			try{
+				%><table border="1"> <%
+				System.out.println("gets into part 2");
+				ResultSet rq=null;
+				Statement sss=conn.createStatement();
+				String que=null;
+				int n=Integer.parseInt(num);
+				n+=10;
+				System.out.println(n+" =n ");
+				
+				if(!cat.equals("All")){
+					que="SELECT products.name,products.id FROM products join categories on products.cid=categories.id"+ 
+							"WHERE products.id>="+ num+
+							" AND products.id<"+n +" AND categories.name= "+"\""+cat+"\""+" ORDER BY products.id";
+				}
+				else{
+					System.out.println("dance");
+					que="SELECT products.name, products.id FROM products WHERE products.id>="+num +
+							" AND products.id<"+n+ "  ORDER BY products.id";
+				}
+				System.out.println("pls be here abc");
+				rq=sss.executeQuery(que);
+				System.out.println("Statement que: "+que);
+				System.out.println("error after this");
+				if(rq.next()){
+					System.out.println("gets to here");
+					%><tr><th></th>
+
+			<%
+				for(int i=1;i<=10;i++){
+					if(Integer.parseInt(rq.getString("id"))==i-1+Integer.parseInt(num)){
+						%><th><%=rq.getString("name") %></th>
+			<% 
+					boolean r=rq.next();
+					if(!r){
+						break;
+					}
+				}
+					else{
+						%><th></th>
+			<%
+					}
+				}
+			%></tr><% 
+			}
+				
+				String last="";
+				String first;
+				ResultSet rw=null;
+				ResultSet m=null;
+				Statement sta=conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+				        ResultSet.CONCUR_READ_ONLY);
+				Statement nnn=conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+				        ResultSet.CONCUR_READ_ONLY);
+				String queryTempMatrix="SELECT name,pid,total FROM tempMatrix "+
+					"WHERE pid >= "+num+" AND pid < "+n+" AND name>"+"\'"+lastname+"\'"+" LIMIT 200";
+				String queryTempCol="SELECT name,total FROM tempCol "+
+						"WHERE name>"+"\'"+lastname+"\'"+" LIMIT 20";
+				rw=sta.executeQuery(queryTempMatrix);
+				m=nnn.executeQuery(queryTempCol);
+				System.out.println("gets done");
+				for(int i=1;i<=20;i++){
+					if(m.next()){
+						last=m.getString("name");
+						
+					%>
+					<tr>
+					<td><%=m.getString("name") %>(<%=m.getString("total") %>)</td>
+					<%
+						
+						for(int j=1;j<=10;j++){
+							if(rw.next()){
+								if(rw.getString("name").equals(m.getString("name"))){
+									System.out.println("here");
+									if(rw.getInt("pid")==j-1+Integer.parseInt(num)){
+										%><td><%=rw.getString("total") %></td><% 
+									}
+									else{
+										%><td>0</td><%
+										rw.previous();
+									}
+									System.out.println("nope sorry dude");
+								}
+								else{
+									rw.previous();
+									%><td>0</td><%
+								}
+							}
+							else
+							%><td>0</td><%
+						}
+					%>
+					
+					</tr>
+					
+					<% }
+					else{
+						break;
+					}
+					
+				}
+				//here start here
+				
+				%>
+				</table>
+			<form action="salesAnalytics.jsp" method="post">
+			<input type="hidden" name="lastname" value="<%=last%>"></input>
+			<input type="hidden" name="num" value="<%=num%>"></input>
+			<input type="hidden" name="age" value="<%=age%>"></input>
+			<input type="hidden" name="state" value="<%=states%>"></input>
+			<input type="hidden" name="cat" value="<%=cat%>"></input>
+			<button type="submit">Next 20 names</button>
+			</form>
+			<form action="salesAnalytics.jsp" method="post">
+			<input type="hidden" name="lastname" value="<%=lastname%>"></input>
+			<input type="hidden" name="num" value="<%=n %>>"></input>
+			<input type="hidden" name="age" value="<%=age%>"></input>
+			<input type="hidden" name="state" value="<%=states%>"></input>
+			<input type="hidden" name="cat" value="<%=cat%>"></input>
+			<button type="submit">Next 10 products</button>
+			</form>
+		
+		<% 
+				
+			}
+			catch (SQLException sqle) {
+				System.out.println("part 2 work pls");
+			    out.println(sqle.getMessage());
+			}
+			
 		}
 	%>
 	<%
@@ -188,3 +521,6 @@ conn.setAutoCommit(true);
 
 </body>
 </html>
+
+
+
