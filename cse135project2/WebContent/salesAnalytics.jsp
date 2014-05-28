@@ -121,6 +121,7 @@
 	<% 
 		int productsDis=0;
 		String newTable=request.getParameter("newTable");
+		String cust=request.getParameter("cust");
 		String age = request.getParameter("age");
 		String cat=request.getParameter("categories");
 		System.out.println("Cat is "+ cat);
@@ -296,6 +297,12 @@
 		"FROM users LEFT OUTER JOIN(sales JOIN ";
 		String matrixW="SELECT users.name,products.id , SUM(sales.quantity*sales.price) AS pi "+
 				"FROM users LEFT OUTER JOIN(sales JOIN ";
+		if(cust.equals("states")){
+			colW="SElECT states.name,SUM(sales.quantity*sales.price) AS sq"+
+		" FROM states LEFT OUTER JOIN(users LEFT OUTER JOIN(sales JOIN ";
+			matrixW="SElECT states.name,products.id,SUM(sales.quantity*sales.price) AS pi"+
+					" FROM states LEFT OUTER JOIN(users LEFT OUTER JOIN(sales JOIN ";
+		}
 		String query="";
 		if(!cat.equals("All")){
 			query+=" (products JOIN categories ON (products.cid=categories.id)AND(categories.name=\'"+cat +"\'))";
@@ -303,7 +310,12 @@
 		else{
 			query+=" products";
 		}
-		query+=" ON sales.pid=products.id) ON sales.uid=users.id WHERE true";
+		query+=" ON sales.pid=products.id) ON sales.uid=users.id"; //"WHERE true";
+		if(cust.equals("states")){
+			query+=") on users.state=states.name";
+			
+		}
+		query+=" WHERE true";
 		if(!states.equals("All")){
 		 	query+=" AND users.state=\'"+states+"\' ";
 		}
@@ -313,12 +325,22 @@
 		else if(!age.equals("All")&&age.equals("65+")){
 			query+=" AND users.age>="+age.substring(0,2)+" ";
 		}
-		String tempColW=colW+query+" GROUP BY users.name ORDER BY users.name ASC";
-		String tempMatW=matrixW+query+" GROUP BY users.name, products.id ORDER BY users.name, products.id ASC";
+		String tempColW;
+		String tempMatW;
+		if(!cust.equals("states")){
+		 tempColW=colW+query+" GROUP BY users.name ORDER BY users.name ASC";
+		 tempMatW=matrixW+query+" GROUP BY users.name, products.id ORDER BY users.name, products.id ASC";
 		colW+=query+" GROUP BY users.name ORDER BY users.name ASC LIMIT 20";
 		
 		matrixW+=query+" GROUP BY users.name, products.id ORDER BY users.name, products.id ASC LIMIT 200";
-		
+		}
+		else{
+			tempColW=colW+query+" GROUP BY states.name ORDER BY states.name ASC";
+			tempMatW=matrixW+query+" GROUP BY states.name, products.id ORDER BY states.name, products.id ASC";
+			colW+=query+" GROUP BY states.name ORDER BY states.name ASC LIMIT 20";
+			
+			matrixW+=query+" GROUP BY states.name, products.id ORDER BY states.name, products.id ASC LIMIT 200";
+		}
 		
 		
 			
@@ -335,7 +357,7 @@
 				last=rTotal.getString("name");
 			%>
 			<tr>
-			<td><%=rTotal.getString("name") %>(<%=rTotal.getInt("sq") %>)</td>
+			<th><%=rTotal.getString("name") %><br>($<%=rTotal.getInt("sq") %>)</th>
 			<%
 				
 				for(int j=1;j<=10;j++){
@@ -583,7 +605,7 @@
 						
 					%>
 					<tr>
-					<td><%=m.getString("name") %>(<%=m.getString("total") %>)</td>
+					<th><%=m.getString("name") %><br>$(<%=m.getString("total") %>)</th>
 					<%
 						
 						for(int j=1;j<=10;j++){
