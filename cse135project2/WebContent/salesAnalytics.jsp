@@ -388,7 +388,7 @@
 				if(!cat.equals("All")){
 					que="SELECT products.name,products.id FROM products join categories on products.cid=categories.id"+ 
 							"WHERE products.id>="+ num+
-							" AND products.id<"+n +" AND categories.name= "+"\""+cat+"\""+" ORDER BY products.id";
+							" AND products.id<"+n +" AND categories.name= "+"\'"+cat+"\'"+" ORDER BY products.id";
 				}
 				else{
 					System.out.println("dance");
@@ -399,6 +399,7 @@
 				rq=sss.executeQuery(que);
 				System.out.println("Statement que: "+que);
 				System.out.println("error after this");
+				int rab=0;
 				if(rq.next()){
 					System.out.println("gets to here");
 					%><tr><th></th>
@@ -410,6 +411,7 @@
 			<% 
 					boolean r=rq.next();
 					if(!r){
+						rab=1;
 						break;
 					}
 				}
@@ -448,7 +450,7 @@
 						for(int j=1;j<=10;j++){
 							if(rw.next()){
 								if(rw.getString("name").equals(m.getString("name"))){
-									System.out.println("here");
+									//System.out.println("here");
 									if(rw.getInt("pid")==j-1+Integer.parseInt(num)){
 										%><td><%=rw.getString("total") %></td><% 
 									}
@@ -456,7 +458,7 @@
 										%><td>0</td><%
 										rw.previous();
 									}
-									System.out.println("nope sorry dude");
+									//System.out.println("nope sorry dude");
 								}
 								else{
 									rw.previous();
@@ -480,24 +482,27 @@
 				
 				%>
 				</table>
+				<%if(!last.equals("")){ %>
 			<form action="salesAnalytics.jsp" method="post">
 			<input type="hidden" name="lastname" value="<%=last%>"></input>
 			<input type="hidden" name="num" value="<%=num%>"></input>
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=states%>"></input>
-			<input type="hidden" name="cat" value="<%=cat%>"></input>
+			<input type="hidden" name="categories" value="<%=cat%>"></input>
 			<button type="submit">Next 20 names</button>
 			</form>
+			<%}
+				if(rab!=1){	%>
 			<form action="salesAnalytics.jsp" method="post">
 			<input type="hidden" name="lastname" value="<%=lastname%>"></input>
-			<input type="hidden" name="num" value="<%=n %>>"></input>
+			<input type="hidden" name="num" value="<%=n %>"></input>
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=states%>"></input>
-			<input type="hidden" name="cat" value="<%=cat%>"></input>
+			<input type="hidden" name="categories" value="<%=cat%>"></input>
 			<button type="submit">Next 10 products</button>
 			</form>
 		
-		<% 
+		<% }
 				
 			}
 			catch (SQLException sqle) {
@@ -514,7 +519,7 @@ conn.setAutoCommit(true);
 	System.out.println("at the very end here");
     out.println(sqle.getMessage());
 } catch (Exception e) {
-	System.out.println("Is an exection");
+	System.out.println("Is an execption");
     out.println(e.getMessage());
 }
 %>
