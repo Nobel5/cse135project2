@@ -216,30 +216,30 @@
 		
 		String comb="";
 		if(!age.equals("All")&&!age.equals("65+")){
-			comb=where+"user.age > "+age.substring(0,2)+and+"user.age <= "+age.substring(3);
+			comb=where+"users.age > "+age.substring(0,2)+and+"users.age <= "+age.substring(3);
 			d=1;
 			if(!states.equals("ALL")){
-				comb=comb+and+" user.state ="+"\""+states+"\" ";
+				comb=comb+and+" users.state ="+"\'"+states+"\' ";
 			}
 			if(!cat.equals("All")){
 				comb=comb+and+" categories.name="+"\""+cat+"\" ";		
 			}
 		}
 		else if(!age.equals("All")&&age.equals("65+")){
-			comb=where+"user.age > "+age.substring(0,2);
+			comb=where+"users.age > "+age.substring(0,2);
 			d=1;
 			if(!states.equals("ALL")){
-				comb=comb+and+" user.state ="+"\""+states+"\" ";
+				comb=comb+and+" users.state ="+"\'"+states+"\' ";
 			}
 			if(!cat.equals("All")){
-				comb=comb+and+" categories.name="+"\""+cat+"\"";		
+				comb=comb+and+" categories.name="+"\'"+cat+"\'";		
 			}
 		}
 		else if(age.equals("All")&&(!states.equals("All"))){
-			comb=where+" user.state ="+"\""+states+"\" ";
+			comb=where+" users.state ="+"\'"+states+"\' ";
 			d=1;
 			if(!cat.equals("All")){
-				comb=comb+and+" categories.name="+"\""+cat+"\" ";		
+				comb=comb+and+" categories.name="+"\'"+cat+"\' ";		
 			}
 		}
 		else if(age.equals("All")&&states.equals("ALL")&&(!cat.equals("All"))){
@@ -484,7 +484,7 @@
 						%><th><%=rq.getString("name") %><br>$(<%=rq.getInt("total") %>)</th>
 			<% 
 					boolean r=rq.next();
-					if(!r){
+					if(!r&&i!=10){
 						rab=1;
 						break;
 					}
