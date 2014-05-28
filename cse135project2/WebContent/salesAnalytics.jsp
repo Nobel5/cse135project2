@@ -123,11 +123,12 @@
 		String newTable=request.getParameter("newTable");
 		String age = request.getParameter("age");
 		String cat=request.getParameter("categories");
+		System.out.println("Cat is "+ cat);
 		String lastname=request.getParameter("lastname");
 		System.out.println(lastname);
 		String num=request.getParameter("num");
 		String states=request.getParameter("state");
-		
+		System.out.println("into first statements");
 		if(newTable!=null){
 			
 			%>
@@ -207,18 +208,22 @@
 		String mat="SELECT users.name, products.name,products.id,sum(sales.quantity*sales.price) AS pi "+
 		" FROM users LEFT OUTER JOIN sales on sales.uid=users.id LEFT OUTER JOIN products on sales.pid=products.id ";
 		if(!cat.equals("All")){
-			total=total+" JOIN categories on categories.id = products.cid ";
+			total=total+" LEFT OUTER JOIN categories on categories.id = products.cid ";
+			mat=mat+" LEFT OUTER JOIN categories on categories.id = products.cid ";
+			System.out.println("adds categories into from");
 		}
 		int d=0;
-		String where=" WHERE ";
+		String where=" WHERE (";
 		String and=" AND ";
 		
-		
+		int gag=0;
 		String comb="";
 		if(!age.equals("All")&&!age.equals("65+")){
+			System.out.println("if 1");
+			gag=1;
 			comb=where+"users.age > "+age.substring(0,2)+and+"users.age <= "+age.substring(3);
 			d=1;
-			if(!states.equals("ALL")){
+			if(!states.equals("All")){
 				comb=comb+and+" users.state ="+"\'"+states+"\' ";
 			}
 			if(!cat.equals("All")){
@@ -226,9 +231,11 @@
 			}
 		}
 		else if(!age.equals("All")&&age.equals("65+")){
+			System.out.println("if 2");
+			gag=1;
 			comb=where+"users.age > "+age.substring(0,2);
 			d=1;
-			if(!states.equals("ALL")){
+			if(!states.equals("All")){
 				comb=comb+and+" users.state ="+"\'"+states+"\' ";
 			}
 			if(!cat.equals("All")){
@@ -236,64 +243,82 @@
 			}
 		}
 		else if(age.equals("All")&&(!states.equals("All"))){
+			System.out.println("if 3");
+			gag=1;
 			comb=where+" users.state ="+"\'"+states+"\' ";
 			d=1;
 			if(!cat.equals("All")){
 				comb=comb+and+" categories.name="+"\'"+cat+"\' ";		
 			}
 		}
-		else if(age.equals("All")&&states.equals("ALL")&&(!cat.equals("All"))){
-			comb=where+" categories.name="+"\""+cat+"\" ";
+		else if(age.equals("All")&&states.equals("All")&&(!cat.equals("All"))){
+			System.out.println("gets into the cat area work now pls");
+			gag=1;
+			comb=where+" categories.name="+"\'"+cat+"\' ";
 			d=1;
 		}
+		else
+			System.out.println("gets into final else");
 		String nextTable;
 		String nextTwenty;
+		
 		if(d==1){
 			nextTable=mat+comb+
-					 " GROUP BY users.name,products.id, products.name "+
+					 ") OR sales.id IS NULL  GROUP BY users.name,products.id, products.name "+
 						" ORDER BY users.name,products.id,products.name ASC ";
-			mat=mat+comb+and+" products.id>=1 AND products.id<=10 "+
+			mat=mat+comb+and+" products.id>=1 AND products.id<=10) OR sales.id IS NULL  "+
 					 " GROUP BY users.name,products.id, products.name "+
 						" ORDER BY users.name,products.id,products.name ASC "+" LIMIT 200";
 			
 		}
 		else{
 			nextTable=mat+comb+
-					 " GROUP BY users.name,products.id, products.name "+
+					 "  GROUP BY users.name,products.id, products.name "+
 						" ORDER BY users.name,products.id,products.name ASC ";
-			mat=mat+comb+where+" products.id>=1 AND products.id<=10"+
+			mat=mat+comb+where+" products.id>=1 AND products.id<=10) OR sales.id IS NULL "+
 		 " GROUP BY users.name,products.id, products.name "+
 			" ORDER BY users.name,products.id,products.name ASC "+" LIMIT 200";
 			
 		}
+		if(gag==1)
+			comb=comb+") OR sales.id IS NULL ";
 		String fir=comb+" GROUP BY users.name ORDER BY users.name LIMIT 20";
 		nextTwenty=total+comb+" GROUP BY users.name ORDER BY users.name ";
 		System.out.println("STATEMENT 1\n"+total+fir);
-		System.out.println("STATEMENT 2\n"+mat);
+		
 		rTotal=sTotal.executeQuery(total+fir);
+		System.out.println("STATEMENT 2\n"+mat);
 		matrix=mTotal.executeQuery(mat);
+		System.out.println("gets to that nice spot");
 		last="";
 		for(int i=1;i<=20;i++){
 			if(rTotal.next()){
 				last=rTotal.getString("name");
 			%>
 			<tr>
-			<td><%=rTotal.getString("name") %>(<%=rTotal.getString("sq") %>)</td>
+			<td><%=rTotal.getString("name") %>(<%=rTotal.getInt("sq") %>)</td>
 			<%
 				
 				for(int j=1;j<=10;j++){
 					if(matrix.next()){
 						if(matrix.getString("name").equals(rTotal.getString("name"))){
 							if(matrix.getInt("id")==j){
+								System.out.println("if 1");
 								%><td><%=matrix.getString("pi") %></td><% 
 							}
 							else{
 								%><td>0</td><%
+								System.out.println(matrix.getString("name"));
+								System.out.println("else 1");
+								if(j!=10)
 								matrix.previous();
 							}
 						}
 						else{
+							System.out.println(matrix.getString("name"));
+							
 							matrix.previous();
+							System.out.println("else 2");
 							%><td>0</td><%
 						}
 					}
@@ -312,6 +337,7 @@
 		}
 		rTotal=sTotal.executeQuery(total+fir);
 		matrix=mTotal.executeQuery(mat);
+		System.out.println("past the new stuff");
 	    conn.setAutoCommit(true);
 		conn.setAutoCommit(false);  
 		Statement pie=conn.createStatement();
@@ -336,11 +362,11 @@
 		" name TEXT, "+
 				"  pid         INTEGER, "+
 		" total INTEGER );");
-		System.out.println("1");
+		//System.out.println("1");
 		g.executeUpdate("CREATE TABLE tempCol("+
 				" name TEXT, "+
 				" total INTEGER );");
-		System.out.println("2");
+		//System.out.println("2");
 		h.executeUpdate("CREATE TABLE tempProduct(name TEXT, id INTEGER, total INTEGER)");
 		System.out.println("STATEMENT 3\n"+nextTwenty);
 		conn.setAutoCommit(true);
@@ -350,16 +376,16 @@
 		System.out.println("STATEMENT 4\n"+nextTable);
 		Statement st=conn.createStatement();
 		ResultSet sam=st.executeQuery(nextTable);
-		System.out.println("3");
+		//System.out.println("3");
 		while(bob.next()){
 			String name=bob.getString("name");
 			String sum=bob.getString("sq");
 			if(bob.getString("sq")==null){
 				sum="0";
 			}
-			System.out.println("INSERT INTO tempCol(name,total) VALUES(\""+name+"\","+sum+")");
+			//System.out.println("INSERT INTO tempCol(name,total) VALUES(\""+name+"\","+sum+")");
 			sTotal.execute("INSERT INTO tempCol(name,total) VALUES(\'"+name+"\',"+sum+")");
-			System.out.println("past it");
+			//System.out.println("past it");
 		}
 		System.out.println("4");
 		while(sam.next()){
@@ -367,7 +393,7 @@
 			String pid= sam.getString("id");
 			String sum=sam.getString("pi");
 			Statement gg=conn.createStatement();
-			System.out.println("INSERT INTO tempMatrix(name,pid,total) VALUES(\""+name+"\","+pid+","+sum+")");
+			//System.out.println("INSERT INTO tempMatrix(name,pid,total) VALUES(\""+name+"\","+pid+","+sum+")");
 			gg.executeUpdate("INSERT INTO tempMatrix(name,pid,total) VALUES(\'"+name+"\',"+pid+","+sum+")");
 			
 		}
@@ -403,7 +429,7 @@
 						+ ") ON (products.id=sales.pid) JOIN categories ON (products.cid=categories.id)"
 						+ colCategory
 						+ " GROUP BY products.id ORDER BY products.id";
-				System.out.println(colQuery);
+				//System.out.println(colQuery);
 		ResultSet productRs = colSt.executeQuery(colQuery);
 		while(productRs.next()) {
 			Statement productSt3 = conn.createStatement();
@@ -447,7 +473,7 @@
 		else if(lastname!=null){
 			try{
 				%><table border="1"> <%
-				System.out.println("gets into part 2");
+				//System.out.println("gets into part 2");
 				ResultSet rq=null;
 				Statement sss=conn.createStatement();
 				String que=null;
