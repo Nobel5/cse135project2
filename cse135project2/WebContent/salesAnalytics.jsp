@@ -234,7 +234,7 @@
 				comb=comb+and+" users.state ="+"\'"+states+"\' ";
 			}
 			if(!cat.equals("All")){
-				comb=comb+and+" categories.name="+"\""+cat+"\" ";		
+				comb=comb+and+" categories.name="+"\'"+cat+"\' ";		
 			}
 		}
 		else if(!age.equals("All")&&age.equals("65+")){
