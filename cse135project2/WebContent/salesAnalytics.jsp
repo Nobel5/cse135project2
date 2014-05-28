@@ -143,7 +143,8 @@
 				String selectedCategory = request.getParameter("categories");
 				String selectedAge = request.getParameter("age");
 				ResultSet colRs = null;
-				Statement colSt = conn.createStatement();
+				Statement colSt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+				        ResultSet.CONCUR_READ_ONLY);
 				String colQuery = null;
 				String colCategory = "";
 				String colState = "";
@@ -163,7 +164,7 @@
 				if (!selectedCategory.equals("All")) {
 					colCategory = " AND (categories.name='"+selectedCategory+"')";
 				}
-				colQuery = "SELECT products.name, SUM(sales.quantity*sales.price) AS total"
+				colQuery = "SELECT products.name,products.id, SUM(sales.quantity*sales.price) AS total"
 						+ " FROM products LEFT OUTER JOIN (sales JOIN users ON (sales.uid=users.id)"
 						+ colState + colAge
 						+ ") ON (products.id=sales.pid) JOIN categories ON (products.cid=categories.id)"
@@ -173,17 +174,21 @@
 				//System.out.println(colQuery);
 				
 				colRs = colSt.executeQuery(colQuery);
-				for (int i=0; i<10; i++) {
+				for (int i=1; i<=10; i++) {
 			%>
 			<th width="9%">
 				<%
 					if (colRs.next()) {
+						if(colRs.getInt("id")==i){
 						String productsName = colRs.getString("name");
 						if (productsName.length() <= 10) {
 				%> <%=productsName%><br>($<%=colRs.getInt("total")%>)<%
 						} else {
 				%> <%=productsName.substring(0,10)%><br>($<%=colRs.getInt("total")%>)<%
 						}
+						}
+						else
+							colRs.previous();
 					}
 				%>
 			</th>
@@ -218,6 +223,7 @@
 		
 		int gag=0;
 		String comb="";
+		
 		if(!age.equals("All")&&!age.equals("65+")){
 			System.out.println("if 1");
 			gag=1;
@@ -284,11 +290,44 @@
 			comb=comb+") OR sales.id IS NULL ";
 		String fir=comb+" GROUP BY users.name ORDER BY users.name LIMIT 20";
 		nextTwenty=total+comb+" GROUP BY users.name ORDER BY users.name ";
-		System.out.println("STATEMENT 1\n"+total+fir);
 		
-		rTotal=sTotal.executeQuery(total+fir);
-		System.out.println("STATEMENT 2\n"+mat);
-		matrix=mTotal.executeQuery(mat);
+		/////////////////////////////////////
+		String colW="SELECT users.name , SUM(sales.quantity*sales.price) AS sq "+
+		"FROM users LEFT OUTER JOIN(sales JOIN ";
+		String matrixW="SELECT users.name,products.id , SUM(sales.quantity*sales.price) AS pi "+
+				"FROM users LEFT OUTER JOIN(sales JOIN ";
+		String query="";
+		if(!cat.equals("All")){
+			query+=" (products JOIN categories ON (products.cid=categories.id)AND(categories.name=\'"+cat +"\'))";
+		}
+		else{
+			query+=" products";
+		}
+		query+=" ON sales.pid=products.id) ON sales.uid=users.id WHERE true";
+		if(!states.equals("All")){
+		 	query+=" AND users.state=\'"+states+"\' ";
+		}
+		if(!age.equals("All")&&!age.equals("65+")){
+			query+=" AND users.age>="+age.substring(0,2)+" AND users.age<= "+age.substring(3)+" ";
+		}
+		else if(!age.equals("All")&&age.equals("65+")){
+			query+=" AND users.age>="+age.substring(0,2)+" ";
+		}
+		String tempColW=colW+query+" GROUP BY users.name ORDER BY users.name ASC";
+		String tempMatW=matrixW+query+" GROUP BY users.name, products.id ORDER BY users.name, products.id ASC";
+		colW+=query+" GROUP BY users.name ORDER BY users.name ASC LIMIT 20";
+		
+		matrixW+=query+" GROUP BY users.name, products.id ORDER BY users.name, products.id ASC LIMIT 200";
+		
+		
+		
+			
+		
+		/////////////////////////////////////
+		System.out.println("STATEMENT 1\n"+colW);
+		rTotal=sTotal.executeQuery(colW);
+		System.out.println("STATEMENT 2\n"+matrixW);
+		matrix=mTotal.executeQuery(matrixW);
 		System.out.println("gets to that nice spot");
 		last="";
 		for(int i=1;i<=20;i++){
@@ -368,14 +407,14 @@
 				" total INTEGER );");
 		//System.out.println("2");
 		h.executeUpdate("CREATE TABLE tempProduct(name TEXT, id INTEGER, total INTEGER)");
-		System.out.println("STATEMENT 3\n"+nextTwenty);
+		System.out.println("STATEMENT 3\n"+tempColW);
 		conn.setAutoCommit(true);
 		conn.setAutoCommit(false);
 		Statement status=conn.createStatement();
-		ResultSet bob=status.executeQuery(nextTwenty);
-		System.out.println("STATEMENT 4\n"+nextTable);
+		ResultSet bob=status.executeQuery(tempColW);
+		System.out.println("STATEMENT 4\n"+tempMatW);
 		Statement st=conn.createStatement();
-		ResultSet sam=st.executeQuery(nextTable);
+		ResultSet sam=st.executeQuery(tempMatW);
 		//System.out.println("3");
 		while(bob.next()){
 			String name=bob.getString("name");
