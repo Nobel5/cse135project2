@@ -130,47 +130,71 @@
 		
 		if(newTable!=null){
 			
-			try{
-				%><table border="1">
-		<%
-				System.out.println("keep going");
-				ResultSet rs=null;
-				Statement s=conn.createStatement();
-				String que=null;
-				if(!cat.equals("All")){
-					que="SELECT products.name,products.id FROM products join categories on products.cid=categories.id"+ 
-							"WHERE products.id>0 " +
-							"AND products.id<11 AND categories.name= "+"\""+cat+"\""+" ORDER BY products.id";
-				}
-				else{
-					System.out.println("dance");
-					que="SELECT products.name, products.id FROM products WHERE products.id>0" +
-							" AND products.id<11  ORDER BY products.id";
-				}
-				System.out.println("pls be here abc");
-				rs=s.executeQuery(que);
-				System.out.println(que);
-				System.out.println("error after this");
-				if(rs.next()){
-					%><tr>
-			<th></th>
+			%>
+				<table border="1">
+<tr>
+			<th width="10%"></th>
 			<%
-				for(int i=1;i<=10;i++){
-					if(Integer.parseInt(rs.getString("id"))==i){
-						%><th><%=rs.getString("name") %></th>
-			<% 
-						rs.next();
+			// Column headers
+			try {
+				String selectedType = request.getParameter("cust");
+				String selectedState = request.getParameter("state");
+				String selectedCategory = request.getParameter("categories");
+				String selectedAge = request.getParameter("age");
+				ResultSet colRs = null;
+				Statement colSt = conn.createStatement();
+				String colQuery = null;
+				String colCategory = "";
+				String colState = "";
+				String colAge = "";
+				if (!selectedState.equals("All")) {
+					colState = " AND (users.state='"+selectedState+"')";
 				}
-					else{
-						%><th></th>
-			<%
+				if (!selectedAge.equals("All")) {
+					int minAge = Integer.parseInt(selectedAge.substring(0,2));
+					if (minAge == 65) {
+						colAge = " AND (users.age>=65)";
+					} else {
+						int maxAge = Integer.parseInt(selectedAge.substring(3,5));
+						colAge = " AND (users.age>="+minAge+") AND (users.age<="+maxAge+")";
 					}
 				}
-			}
+				if (!selectedCategory.equals("All")) {
+					colCategory = " AND (categories.name='"+selectedCategory+"')";
+				}
+				colQuery = "SELECT products.name, SUM(sales.quantity*sales.price) AS total"
+						+ " FROM products LEFT OUTER JOIN (sales JOIN users ON (sales.uid=users.id)"
+						+ colState + colAge
+						+ ") ON (products.id=sales.pid) JOIN categories ON (products.cid=categories.id)"
+						+ colCategory
+						+ " WHERE products.id>0 AND products.id<11"
+						+ " GROUP BY products.id ORDER BY products.id";
+				//System.out.println(colQuery);
 				
+				colRs = colSt.executeQuery(colQuery);
+				for (int i=0; i<10; i++) {
+			%>
+			<th width="9%">
+				<%
+					if (colRs.next()) {
+						String productsName = colRs.getString("name");
+						if (productsName.length() <= 10) {
+				%> <%=productsName%><br>($<%=colRs.getInt("total")%>)<%
+						} else {
+				%> <%=productsName.substring(0,10)%><br>($<%=colRs.getInt("total")%>)<%
+						}
+					}
 				%>
+			</th>
+			<%
+				}
+			} catch (SQLException sqle) {
+				System.out.println(sqle.getMessage());
+			}
+			%>
 		</tr>
 		<% 
+		try{
 		ResultSet rTotal=null;
 		ResultSet matrix=null;
 		String last;
@@ -292,9 +316,12 @@
 		conn.setAutoCommit(false);  
 		Statement pie=conn.createStatement();
 		Statement pieEater=conn.createStatement();
+		Statement productSt = conn.createStatement();
 		try{
 			pie.executeUpdate("DROP TABLE tempMatrix");
 			pieEater.executeUpdate("DROP TABLE tempCol");
+			productSt.executeUpdate("DROP TABLE IF EXISTS tempProduct");
+			
 		}catch (SQLException sqle) {
 			out.println(sqle.getMessage());
 		}
@@ -304,6 +331,7 @@
 		System.out.println("begin");
 		Statement f=conn.createStatement();
 		Statement g=conn.createStatement();
+		Statement h = conn.createStatement();
 		f.executeUpdate("CREATE TABLE tempMatrix("+
 		" name TEXT, "+
 				"  pid         INTEGER, "+
@@ -313,6 +341,7 @@
 				" name TEXT, "+
 				" total INTEGER );");
 		System.out.println("2");
+		h.executeUpdate("CREATE TABLE tempProduct(name TEXT, id INTEGER, total INTEGER)");
 		System.out.println("STATEMENT 3\n"+nextTwenty);
 		conn.setAutoCommit(true);
 		conn.setAutoCommit(false);
@@ -343,6 +372,47 @@
 			
 		}
 		System.out.println("5");
+		////////////
+		String selectedType = request.getParameter("cust");
+				String selectedState = request.getParameter("state");
+				String selectedCategory = request.getParameter("categories");
+				String selectedAge = request.getParameter("age");
+				Statement colSt = conn.createStatement();
+				String colQuery = null;
+				String colCategory = "";
+				String colState = "";
+				String colAge = "";
+				if (!selectedState.equals("All")) {
+					colState = " AND (users.state='"+selectedState+"')";
+				}
+				if (!selectedAge.equals("All")) {
+					int minAge = Integer.parseInt(selectedAge.substring(0,2));
+					if (minAge == 65) {
+						colAge = " AND (users.age>=65)";
+					} else {
+						int maxAge = Integer.parseInt(selectedAge.substring(3,5));
+						colAge = " AND (users.age>="+minAge+") AND (users.age<="+maxAge+")";
+					}
+				}
+				if (!selectedCategory.equals("All")) {
+					colCategory = " AND (categories.name='"+selectedCategory+"')";
+				}
+				colQuery = "SELECT products.name, products.id, SUM(sales.quantity*sales.price) AS total"
+						+ " FROM products LEFT OUTER JOIN (sales JOIN users ON (sales.uid=users.id)"
+						+ colState + colAge
+						+ ") ON (products.id=sales.pid) JOIN categories ON (products.cid=categories.id)"
+						+ colCategory
+						+ " GROUP BY products.id ORDER BY products.id";
+				System.out.println(colQuery);
+		ResultSet productRs = colSt.executeQuery(colQuery);
+		while(productRs.next()) {
+			Statement productSt3 = conn.createStatement();
+			String pName = productRs.getString("name");
+			int pTotal = productRs.getInt("total");
+			int pId = productRs.getInt("id");
+			productSt3.executeUpdate("INSERT INTO tempProduct(name,id,total) VALUES (\'"+pName+"\',"+pId+","+pTotal+")");
+		}
+		
 		%>
 			</table>
 			<form action="salesAnalytics.jsp" method="post">
@@ -354,7 +424,7 @@
 			<button type="submit">Next 20 names</button>
 			</form>
 			<form action="salesAnalytics.jsp" method="post">
-			<input type="hidden" name="lastname" value="a"></input>
+			<input type="hidden" name="lastname" value=""></input>
 			<input type="hidden" name="num" value="11"></input>
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=cat%>"></input>
@@ -384,7 +454,7 @@
 				int n=Integer.parseInt(num);
 				n+=10;
 				System.out.println(n+" =n ");
-				
+				/*
 				if(!cat.equals("All")){
 					que="SELECT products.name,products.id FROM products join categories on products.cid=categories.id"+ 
 							"WHERE products.id>="+ num+
@@ -395,7 +465,11 @@
 					que="SELECT products.name, products.id FROM products WHERE products.id>="+num +
 							" AND products.id<"+n+ "  ORDER BY products.id";
 				}
+				
 				System.out.println("pls be here abc");
+				*/
+				que = "SELECT tempProduct.name, tempProduct.id, tempProduct.total FROM tempProduct"
+					+ " WHERE tempProduct.id>="+num+" AND tempProduct.id<"+n;
 				rq=sss.executeQuery(que);
 				System.out.println("Statement que: "+que);
 				System.out.println("error after this");
@@ -407,7 +481,7 @@
 			<%
 				for(int i=1;i<=10;i++){
 					if(Integer.parseInt(rq.getString("id"))==i-1+Integer.parseInt(num)){
-						%><th><%=rq.getString("name") %></th>
+						%><th><%=rq.getString("name") %><br>$(<%=rq.getInt("total") %>)</th>
 			<% 
 					boolean r=rq.next();
 					if(!r){
