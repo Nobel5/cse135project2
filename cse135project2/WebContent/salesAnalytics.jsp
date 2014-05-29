@@ -584,7 +584,8 @@
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=cat%>"></input>
 			<input type="hidden" name="categories" value="<%=cat%>"></input>
-			<button type="submit">Next 20 names</button>
+			<input type="hidden" name="cust" value="<%=request.getParameter("cust")%>" />
+			<button type="submit">Next 20 <%=request.getParameter("cust") %></button>
 			</form>
 			<form action="salesAnalytics.jsp" method="post">
 			<input type="hidden" name="lastname" value=""></input>
@@ -729,7 +730,8 @@
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=states%>"></input>
 			<input type="hidden" name="categories" value="<%=cat%>"></input>
-			<button type="submit">Next 20 names</button>
+			<input type="hidden" name="cust" value="<%=request.getParameter("cust")%>" />
+			<button type="submit">Next 20 <%=request.getParameter("cust") %></button>
 			</form>
 			<%}
 				if(rab!=1){	%>
