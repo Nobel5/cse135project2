@@ -140,12 +140,13 @@
 		System.out.println("Cat is "+ cat);
 		String lastname=request.getParameter("lastname");
 		System.out.println(lastname);
-		String num=request.getParameter("num");
+		String pname=request.getParameter("pname");
 		String states=request.getParameter("state");
 		System.out.println("into first statements");
 		String colQueryA=request.getParameter("colQuery");
 		String tempMatA=request.getParameter("tempMat");
 		String tempColA=request.getParameter("tempCol");
+		String arr[]=new String[10];
 		if(colQueryA!=null){
 			try{
 				Statement status=conn.createStatement();
@@ -153,7 +154,7 @@
 				System.out.println("STATEMENT 4\n"+tempMatA);
 				Statement st=conn.createStatement();
 				ResultSet sam=st.executeQuery(tempMatA);
-				//System.out.println("3");
+				System.out.println("3");
 				while(bob.next()){
 					String name=bob.getString("name");
 					String sum=bob.getString("sq");
@@ -168,23 +169,25 @@
 				System.out.println("4");
 				while(sam.next()){
 					String name=sam.getString("name");
-					String pid= sam.getString("id");
+					String pid= sam.getString("pname");
 					String sum=sam.getString("pi");
 					Statement gg=conn.createStatement();
 					//System.out.println("INSERT INTO tempMatrix(name,pid,total) VALUES(\""+name+"\","+pid+","+sum+")");
-					gg.executeUpdate("INSERT INTO tempMatrix(name,pid,total) VALUES(\'"+name+"\',"+pid+","+sum+")");
+					gg.executeUpdate("INSERT INTO tempMatrix(name,pname,total) VALUES(\'"+name+"\',\'"+pid+"\',"+sum+")");
 					
 				}
 				
 				Statement colSt=conn.createStatement();
+				System.out.println("6");
 				ResultSet productRs = colSt.executeQuery(colQueryA);
 				while(productRs.next()) {
 					Statement productSt3 = conn.createStatement();
 					String pName = productRs.getString("name");
 					int pTotal = productRs.getInt("total");
 					int pId = productRs.getInt("id");
-					productSt3.executeUpdate("INSERT INTO tempProduct(name,id,total) VALUES (\'"+pName+"\',"+pId+","+pTotal+")");
-				}	
+					productSt3.executeUpdate("INSERT INTO tempProduct(name,pid,total) VALUES (\'"+pName+"\', "+pId+","+pTotal+")");
+				}
+				System.out.println("finishes temp tables");
 			}
 			catch (SQLException sqle) {
 				System.out.println("at the very end here");
@@ -235,8 +238,7 @@
 						+ colState + colAge
 						+ ") ON (products.id=sales.pid) JOIN categories ON (products.cid=categories.id)"
 						+ colCategory
-						+ " WHERE products.id>0 AND products.id<11"
-						+ " GROUP BY products.id ORDER BY products.id";
+						+ " GROUP BY products.name,products.id ORDER BY products.name,products.id";
 				//System.out.println(colQuery);
 			/* 	if(colCategory.equals("")){
 				 	colQuery = "SELECT products.name,products.id, SUM(sales.quantity*sales.price) AS total"
@@ -253,16 +255,15 @@
 			<th width="9%">
 				<%
 					if (colRs.next()) {
-						if(colRs.getInt("id")==i){
+						arr[i-1]=colRs.getString("name");
 						String productsName = colRs.getString("name");
 						if (productsName.length() <= 10) {
 				%> <%=productsName%><br>($<%=colRs.getInt("total")%>)<%
 						} else {
 				%> <%=productsName.substring(0,10)%><br>($<%=colRs.getInt("total")%>)<%
 						}
-						}
-						else
-							colRs.previous();
+						
+						
 					}
 				%>
 			</th>
@@ -368,12 +369,12 @@
 		/////////////////////////////////////
 		String colW="SELECT users.name , SUM(sales.quantity*sales.price) AS sq "+
 		"FROM users LEFT OUTER JOIN(sales JOIN ";
-		String matrixW="SELECT users.name,products.id , SUM(sales.quantity*sales.price) AS pi "+
+		String matrixW="SELECT users.name,products.name AS pname , SUM(sales.quantity*sales.price) AS pi "+
 				"FROM users LEFT OUTER JOIN(sales JOIN ";
 		if(cust.equals("states")){
 			colW="SElECT states.name,SUM(sales.quantity*sales.price) AS sq"+
 		" FROM states LEFT OUTER JOIN(users LEFT OUTER JOIN(sales JOIN ";
-			matrixW="SElECT states.name,products.id,SUM(sales.quantity*sales.price) AS pi"+
+			matrixW="SElECT states.name,products.name AS pname,SUM(sales.quantity*sales.price) AS pi"+
 					" FROM states LEFT OUTER JOIN(users LEFT OUTER JOIN(sales JOIN ";
 		}
 		String query="";
@@ -402,17 +403,17 @@
 		String tempMatW;
 		if(!cust.equals("states")){
 		 tempColW=colW+query+" GROUP BY users.name ORDER BY users.name ASC";
-		 tempMatW=matrixW+query+" GROUP BY users.name, products.id ORDER BY users.name, products.id ASC";
+		 tempMatW=matrixW+query+" GROUP BY users.name, products.name ORDER BY users.name, products.name ASC";
 		colW+=query+" GROUP BY users.name ORDER BY users.name ASC LIMIT 20";
 		
-		matrixW+=query+" GROUP BY users.name, products.id ORDER BY users.name, products.id ASC LIMIT 200";
+		matrixW+=query+" GROUP BY users.name, products.name ORDER BY users.name, products.name ASC LIMIT 200";
 		}
 		else{
 			tempColW=colW+query+" GROUP BY states.name ORDER BY states.name ASC";
-			tempMatW=matrixW+query+" GROUP BY states.name, products.id ORDER BY states.name, products.id ASC";
+			tempMatW=matrixW+query+" GROUP BY states.name, products.name ORDER BY states.name, products.name ASC";
 			colW+=query+" GROUP BY states.name ORDER BY states.name ASC LIMIT 20";
 			
-			matrixW+=query+" GROUP BY states.name, products.id ORDER BY states.name, products.id ASC LIMIT 200";
+			matrixW+=query+" GROUP BY states.name, products.name ORDER BY states.name, products.name ASC LIMIT 200";
 		}
 		
 		
@@ -436,23 +437,35 @@
 				for(int j=1;j<=10;j++){
 					if(matrix.next()){
 						if(matrix.getString("name").equals(rTotal.getString("name"))){
-							if(matrix.getInt("id")==j){
-								System.out.println("if 1");
+							if(matrix.getString("pname")!=null){
+								
+							
+								if(matrix.getString("pname").equals(arr[j-1])){
+								//System.out.println("if 1");
 								%><td><%=matrix.getString("pi") %></td><% 
 							}
 							else{
 								%><td>0</td><%
-								System.out.println(matrix.getString("name"));
-								System.out.println("else 1");
+								//System.out.println(matrix.getString("name"));
+								//System.out.println("else 1");
 								if(j!=10)
 								matrix.previous();
 							}
+								}
+							else {
+								%><td>0</td><%
+								//System.out.println(matrix.getString("name"));
+								//System.out.println("else 1");
+								if(j!=10)
+								matrix.previous();
+								
+							}
 						}
 						else{
-							System.out.println(matrix.getString("name"));
+						//	System.out.println(matrix.getString("name"));
 							
 							matrix.previous();
-							System.out.println("else 2");
+						//	System.out.println("else 2");
 							%><td>0</td><%
 						}
 					}
@@ -494,14 +507,14 @@
 		Statement h = conn.createStatement();
 		f.executeUpdate("CREATE TABLE tempMatrix("+
 		" name TEXT, "+
-				"  pid         INTEGER, "+
+				"  pname         TEXT, "+
 		" total INTEGER );");
 		//System.out.println("1");
 		g.executeUpdate("CREATE TABLE tempCol("+
 				" name TEXT, "+
 				" total INTEGER );");
 		//System.out.println("2");
-		h.executeUpdate("CREATE TABLE tempProduct(name TEXT, id INTEGER, total INTEGER)");
+		h.executeUpdate("CREATE TABLE tempProduct(name TEXT, pid INTEGER, total INTEGER)");
 		System.out.println("STATEMENT 3\n"+tempColW);
 		conn.setAutoCommit(true);
 		conn.setAutoCommit(false);
@@ -557,12 +570,13 @@
 				if (!selectedCategory.equals("All")) {
 					colCategory = " AND (categories.name='"+selectedCategory+"')";
 				}
-				colQuery = "SELECT products.name, products.id, SUM(sales.quantity*sales.price) AS total"
+				colQuery = "SELECT products.name,products.id , SUM(sales.quantity*sales.price) AS total"
 						+ " FROM products LEFT OUTER JOIN (sales JOIN users ON (sales.uid=users.id)"
 						+ colState + colAge
 						+ ") ON (products.id=sales.pid) JOIN categories ON (products.cid=categories.id)"
 						+ colCategory
-						+ " GROUP BY products.id ORDER BY products.id";
+						+ " GROUP BY products.name,products.id ORDER BY products.name, products.id";
+				System.out.println("STATEMENT 5 : \n"+colQuery);
 				//System.out.println(colQuery);
 /* 		ResultSet productRs = colSt.executeQuery(colQuery);
 		while(productRs.next()) {
@@ -578,6 +592,7 @@
 			<form action="salesAnalytics.jsp" method="post">
 			<input type="hidden" name="lastname" value="<%=last%>"></input>
 			<input type="hidden" name="num" value="1"></input>
+			<input type="hidden" name="pname" value=""></input>
 			<input type="hidden" name="tempCol" value="<%=tempColW%>">
 			<input type="hidden" name="tempMat" value="<%=tempMatW%>">
 			<input type="hidden" name="colQuery" value="<%=colQuery%>">
@@ -592,6 +607,7 @@
 			<input type="hidden" name="tempCol" value="<%=tempColW%>">
 			<input type="hidden" name="tempMat" value="<%=tempMatW%>">
 			<input type="hidden" name="colQuery" value="<%=colQuery%>">
+			<input type="hidden" name="pname" value="<%=arr[9]%>"></input>
 			<input type="hidden" name="num" value="11"></input>
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=cat%>"></input>
@@ -613,14 +629,13 @@
 		}
 		else if(lastname!=null){
 			try{
+				String sArr[]=new String[10];
 				%><table border="1"> <%
-				//System.out.println("gets into part 2");
+				System.out.println("gets into part 2");
 				ResultSet rq=null;
-				Statement sss=conn.createStatement();
+				Statement sss=conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+				        ResultSet.CONCUR_READ_ONLY);
 				String que=null;
-				int n=Integer.parseInt(num);
-				n+=10;
-				System.out.println(n+" =n ");
 				/*
 				if(!cat.equals("All")){
 					que="SELECT products.name,products.id FROM products join categories on products.cid=categories.id"+ 
@@ -635,32 +650,34 @@
 				
 				System.out.println("pls be here abc");
 				*/
-				que = "SELECT tempProduct.name, tempProduct.id, tempProduct.total FROM tempProduct"
-					+ " WHERE tempProduct.id>="+num+" AND tempProduct.id<"+n;
+				que = "SELECT tempProduct.name, tempProduct.pid, tempProduct.total FROM tempProduct"
+					+ " WHERE tempProduct.name>\'"+pname+"\'";
 				rq=sss.executeQuery(que);
 				System.out.println("Statement que: "+que);
 				System.out.println("error after this");
 				int rab=0;
 				if(rq.next()){
+					rq.previous();
 					System.out.println("gets to here");
 					%><tr><th></th>
 
 			<%
 				for(int i=1;i<=10;i++){
-					if(Integer.parseInt(rq.getString("id"))==i-1+Integer.parseInt(num)){
-						%><th><%=rq.getString("name") %><br>$(<%=rq.getInt("total") %>)</th>
-			<% 
-					boolean r=rq.next();
-					if(!r&&i!=10){
-						rab=1;
-						break;
+					if(rq.next()){
+						sArr[i-1]=rq.getString("name");
+						
+						if (sArr[i-1].length() <= 10) {
+							%><th> <%=sArr[i-1]%><br>($<%=rq.getInt("total")%>)</th><%
+									} else {
+							%><th> <%=sArr[i-1].substring(0,10)%><br>($<%=rq.getInt("total")%>)</th><%
+									}
 					}
-				}
 					else{
-						%><th></th>
-			<%
+						rab=1;
+						%><th></th><%	
 					}
-				}
+					}
+				
 			%></tr><% 
 			}
 				
@@ -672,8 +689,8 @@
 				        ResultSet.CONCUR_READ_ONLY);
 				Statement nnn=conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
 				        ResultSet.CONCUR_READ_ONLY);
-				String queryTempMatrix="SELECT name,pid,total FROM tempMatrix "+
-					"WHERE pid >= "+num+" AND pid < "+n+" AND name>"+"\'"+lastname+"\'"+" LIMIT 200";
+				String queryTempMatrix="SELECT name,pname,total FROM tempMatrix "+
+					"WHERE pname> \'"+pname+"\' AND name>"+"\'"+lastname+"\'"+" LIMIT 200";
 				String queryTempCol="SELECT name,total FROM tempCol "+
 						"WHERE name>"+"\'"+lastname+"\'"+" LIMIT 20";
 				rw=sta.executeQuery(queryTempMatrix);
@@ -692,8 +709,14 @@
 							if(rw.next()){
 								if(rw.getString("name").equals(m.getString("name"))){
 									//System.out.println("here");
-									if(rw.getInt("pid")==j-1+Integer.parseInt(num)){
+									if(rw.getString("pname")!=null){
+									if(rw.getString("pname").equals(sArr[j-1])){
 										%><td><%=rw.getString("total") %></td><% 
+									}
+									else{
+										%><td>0</td><%
+										rw.previous();
+									}
 									}
 									else{
 										%><td>0</td><%
@@ -726,7 +749,7 @@
 				<%if(!last.equals("")){ %>
 			<form action="salesAnalytics.jsp" method="post">
 			<input type="hidden" name="lastname" value="<%=last%>"></input>
-			<input type="hidden" name="num" value="<%=num%>"></input>
+			<input type="hidden" name="pname" value="<%=pname%>"></input>
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=states%>"></input>
 			<input type="hidden" name="categories" value="<%=cat%>"></input>
@@ -737,7 +760,7 @@
 				if(rab!=1){	%>
 			<form action="salesAnalytics.jsp" method="post">
 			<input type="hidden" name="lastname" value="<%=lastname%>"></input>
-			<input type="hidden" name="num" value="<%=n %>"></input>
+			<input type="hidden" name="pname" value="<%=sArr[9]%>"></input>
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=states%>"></input>
 			<input type="hidden" name="categories" value="<%=cat%>"></input>
