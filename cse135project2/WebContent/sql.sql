@@ -4,6 +4,7 @@ DROP TABLE products CASCADE;
 DROP TABLE sales CASCADE;
 
 
+
 /**table 1: [entity] users**/
 CREATE TABLE users (
     id          SERIAL PRIMARY KEY,
@@ -135,3 +136,6 @@ insert into states(name) values ('Wisconsin');
 insert into states(name) values ('Wyoming');
 
 SELECT * FROM sales order by id desc;
+
+DROP INDEX IF EXISTS q2
+CREATE INDEX q2 ON sales(uid)
