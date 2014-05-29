@@ -102,7 +102,7 @@
 						}
 						%>
 						<input type="hidden" name="newTable" value="new"></input>
-				</select> Age <select name="age">
+				</select> Age <select id="age" name="age">
 						<option selected="selected">All</option>
 						<option>12-18</option>
 						<option>18-45</option>
@@ -116,6 +116,19 @@
 						value="Run Query" /></td>
 				</tr>
 			</table>
+			<script type="text/javascript">
+			window.onload = function() {
+				<% if (request.getParameter("cust")!=null) %>
+					document.getElementById("cust").value="<%=request.getParameter("cust")%>";
+				<% if (request.getParameter("state")!=null) %>
+					document.getElementById("state").value="<%=request.getParameter("state")%>";
+				<% if (request.getParameter("categories")!=null) %>
+					document.getElementById("categories").value="<%=request.getParameter("categories")%>";
+				<% if (request.getParameter("age")!=null) %>
+					document.getElementById("age").value="<%=request.getParameter("age")%>";
+				<%%>
+			}
+			</script>
 		</form>
 	</center>
 	<% 
