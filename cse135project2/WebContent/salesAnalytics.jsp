@@ -116,19 +116,22 @@
 						value="Run Query" /></td>
 				</tr>
 			</table>
+			<%if (request.getParameter("cust")!=null) {
+			%>
 			<script type="text/javascript">
 			window.onload = function() {
-				<% if (request.getParameter("cust")!=null) %>
+				<% if (request.getParameter("cust")=="customers" || request.getParameter("cust")=="states") { %>
 					document.getElementById("cust").value="<%=request.getParameter("cust")%>";
-				<% if (request.getParameter("state")!=null) %>
+				<% } if (request.getParameter("state")!=null && request.getParameter("state")!="") { %>
 					document.getElementById("state").value="<%=request.getParameter("state")%>";
-				<% if (request.getParameter("categories")!=null) %>
+				<% } if (request.getParameter("categories")!=null && request.getParameter("categories")!="") { %>
 					document.getElementById("categories").value="<%=request.getParameter("categories")%>";
-				<% if (request.getParameter("age")!=null) %>
+				<% } if (request.getParameter("age")!=null && request.getParameter("state")!="") { %>
 					document.getElementById("age").value="<%=request.getParameter("age")%>";
-				<%%>
+				<% } %>
 			}
 			</script>
+			<% } %>
 		</form>
 	</center>
 	<% 
@@ -612,6 +615,7 @@
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=cat%>"></input>
 			<input type="hidden" name="categories" value="<%=cat%>"></input>
+			<input type="hidden" name="cust" value="<%=request.getParameter("cust")%>" />
 			<button type="submit">Next 10 products</button>
 			</form>
 		<%
