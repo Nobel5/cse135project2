@@ -27,71 +27,75 @@
 			<table>
 				<tr>
 					<td align="center"><select id="cust" name="cust">
-							<option selected="selected" value="customers">Customers</option>
-							<option value="states">States</option>
+							<option <%if ("customers".equals(request.getParameter("cust"))) { %>selected<%} %> value="customers">Customers</option>
+							<option <%if ("states".equals(request.getParameter("cust"))) { %>selected<%} %> value="states">States</option>
 					</select></td>
 				</tr>
 				<td align="center">State <select id="state" name="state">
-						<option selected="selected">All</option>
-						<option>Alabama</option>
-						<option>Alaska</option>
-						<option>Arizona</option>
-						<option>Arkansas</option>
-						<option>California</option>
-						<option>Colorado</option>
-						<option>Connecticut</option>
-						<option>Delaware</option>
-						<option>Florida</option>
-						<option>Georgia</option>
-						<option>Hawaii</option>
-						<option>Idaho</option>
-						<option>Illinois</option>
-						<option>Indiana</option>
-						<option>Iowa</option>
-						<option>Kansas</option>
-						<option>Kentucky</option>
-						<option>Louisiana</option>
-						<option>Maine</option>
-						<option>Maryland</option>
-						<option>Massachusetts</option>
-						<option>Michigan</option>
-						<option>Minnesota</option>
-						<option>Mississippi</option>
-						<option>Missouri</option>
-						<option>Montana</option>
-						<option>Nebraska</option>
-						<option>Nevada</option>
-						<option>New Hampshire</option>
-						<option>New Jersey</option>
-						<option>New Mexico</option>
-						<option>New York</option>
-						<option>North Carolina</option>
-						<option>North Dakota</option>
-						<option>Ohio</option>
-						<option>Oklahoma</option>
-						<option>Oregon</option>
-						<option>Pennsylvania</option>
-						<option>Rhode Island</option>
-						<option>South Carolina</option>
-						<option>South Dakota</option>
-						<option>Tennessee</option>
-						<option>Texas</option>
-						<option>Utah</option>
-						<option>Vermont</option>
-						<option>Virginia</option>
-						<option>Washington</option>
-						<option>West Virginia</option>
-						<option>Wisconsin</option>
-						<option>Wyoming</option>
+						<option>All</option>
+						<option <%if ("Alabama".equals(request.getParameter("state"))) { %>selected<%} %>>Alabama</option>
+						<option <%if ("Arkansas".equals(request.getParameter("state"))) { %>selected<%} %>>Alaska</option>
+						<option <%if ("Arizona".equals(request.getParameter("state"))) { %>selected<%} %>>Arizona</option>
+						<option <%if ("Arkansas".equals(request.getParameter("state"))) { %>selected<%} %>>Arkansas</option>
+						<option <%if ("California".equals(request.getParameter("state"))) { %>selected<%} %>>California</option>
+						<option <%if ("Colorado".equals(request.getParameter("state"))) { %>selected<%} %>>Colorado</option>
+						<option <%if ("Connecticut".equals(request.getParameter("state"))) { %>selected<%} %>>Connecticut</option>
+						<option <%if ("Delaware".equals(request.getParameter("state"))) { %>selected<%} %>>Delaware</option>
+						<option <%if ("Florida".equals(request.getParameter("state"))) { %>selected<%} %>>Florida</option>
+						<option <%if ("Georgia".equals(request.getParameter("state"))) { %>selected<%} %>>Georgia</option>
+						<option <%if ("Idaho".equals(request.getParameter("state"))) { %>selected<%} %>>Hawaii</option>
+						<option <%if ("Idaho".equals(request.getParameter("state"))) { %>selected<%} %>>Idaho</option>
+						<option <%if ("Illinois".equals(request.getParameter("state"))) { %>selected<%} %>>Illinois</option>
+						<option <%if ("Indiana".equals(request.getParameter("state"))) { %>selected<%} %>>Indiana</option>
+						<option <%if ("Iowa".equals(request.getParameter("state"))) { %>selected<%} %>>Iowa</option>
+						<option <%if ("Kansas".equals(request.getParameter("state"))) { %>selected<%} %>>Kansas</option>
+						<option <%if ("Kentucky".equals(request.getParameter("state"))) { %>selected<%} %>>Kentucky</option>
+						<option <%if ("Louisiana".equals(request.getParameter("state"))) { %>selected<%} %>>Louisiana</option>
+						<option <%if ("Maine".equals(request.getParameter("state"))) { %>selected<%} %>>Maine</option>
+						<option <%if ("Maryland".equals(request.getParameter("state"))) { %>selected<%} %>>Maryland</option>
+						<option <%if ("Massachusetts".equals(request.getParameter("state"))) { %>selected<%} %>>Massachusetts</option>
+						<option <%if ("Michigan".equals(request.getParameter("state"))) { %>selected<%} %>>Michigan</option>
+						<option <%if ("Minnesota".equals(request.getParameter("state"))) { %>selected<%} %>>Minnesota</option>
+						<option <%if ("Mississippi".equals(request.getParameter("state"))) { %>selected<%} %>>Mississippi</option>
+						<option <%if ("Missouri".equals(request.getParameter("state"))) { %>selected<%} %>>Missouri</option>
+						<option <%if ("Montana".equals(request.getParameter("state"))) { %>selected<%} %>>Montana</option>
+						<option <%if ("Nebraska".equals(request.getParameter("state"))) { %>selected<%} %>>Nebraska</option>
+						<option <%if ("Nevada".equals(request.getParameter("state"))) { %>selected<%} %>>Nevada</option>
+						<option <%if ("New Hampshire".equals(request.getParameter("state"))) { %>selected<%} %>>New Hampshire</option>
+						<option <%if ("New Jersey".equals(request.getParameter("state"))) { %>selected<%} %>>New Jersey</option>
+						<option <%if ("New Mexico".equals(request.getParameter("state"))) { %>selected<%} %>>New Mexico</option>
+						<option <%if ("New York".equals(request.getParameter("state"))) { %>selected<%} %>>New York</option>
+						<option <%if ("North Carolina".equals(request.getParameter("state"))) { %>selected<%} %>>North Carolina</option>
+						<option <%if ("North Dakota".equals(request.getParameter("state"))) { %>selected<%} %>>North Dakota</option>
+						<option <%if ("Ohio".equals(request.getParameter("state"))) { %>selected<%} %>>Ohio</option>
+						<option <%if ("Oklahoma".equals(request.getParameter("state"))) { %>selected<%} %>>Oklahoma</option>
+						<option <%if ("Oregon".equals(request.getParameter("state"))) { %>selected<%} %>>Oregon</option>
+						<option <%if ("Pennsylvania".equals(request.getParameter("state"))) { %>selected<%} %>>Pennsylvania</option>
+						<option <%if ("Rhode Island".equals(request.getParameter("state"))) { %>selected<%} %>>Rhode Island</option>
+						<option <%if ("South Carolina".equals(request.getParameter("state"))) { %>selected<%} %>>South Carolina</option>
+						<option <%if ("South Dakota".equals(request.getParameter("state"))) { %>selected<%} %>>South Dakota</option>
+						<option <%if ("Tennessee".equals(request.getParameter("state"))) { %>selected<%} %>>Tennessee</option>
+						<option <%if ("Texas".equals(request.getParameter("state"))) { %>selected<%} %>>Texas</option>
+						<option <%if ("Utah".equals(request.getParameter("state"))) { %>selected<%} %>>Utah</option>
+						<option <%if ("Vermont".equals(request.getParameter("state"))) { %>selected<%} %>>Vermont</option>
+						<option <%if ("Virginia".equals(request.getParameter("state"))) { %>selected<%} %>>Virginia</option>
+						<option <%if ("Washington".equals(request.getParameter("state"))) { %>selected<%} %>>Washington</option>
+						<option <%if ("West Virginia".equals(request.getParameter("state"))) { %>selected<%} %>>West Virginia</option>
+						<option <%if ("Wisconsin".equals(request.getParameter("state"))) { %>selected<%} %>>Wisconsin</option>
+						<option <%if ("Wyoming".equals(request.getParameter("state"))) { %>selected<%} %>>Wyoming</option>
 				</select> Category <select id="categories" name="categories">
-						<option selected="selected">All</option>
+						<option>All</option>
 						<%
 							try{
 								ResultSet rs=null;
 								Statement state=conn.createStatement();
 								rs=state.executeQuery("SELECT name FROM categories");
 								while(rs.next()){
-									%><option><%=rs.getString("name")%>
+									if (rs.getString("name").equals(request.getParameter("categories"))) {
+									%><option selected><%=rs.getString("name")%>
+									<% } else { %>
+										<option><%=rs.getString("name")%>
+									<% } %>
 						</option>
 						<% //System.out.println("maybe here");
 								}
@@ -103,11 +107,27 @@
 						%>
 						<input type="hidden" name="newTable" value="new"></input>
 				</select> Age <select id="age" name="age">
-						<option selected="selected">All</option>
-						<option>12-18</option>
-						<option>18-45</option>
-						<option>45-65</option>
-						<option>65+</option>
+						<option>All</option>
+						<%if ("12-18".equals(request.getParameter("age"))) { %>
+							<option selected>12-18</option>
+						<% } else { %>
+							<option>12-18</option>
+						<% } %>
+						<%if ("18-45".equals(request.getParameter("age"))) { %>
+							<option selected>18-45</option>
+						<% } else { %>
+							<option>18-45</option>
+						<% } %>
+						<%if ("45-65".equals(request.getParameter("age"))) { %>
+							<option selected>45-65</option>
+						<% } else { %>
+							<option>45-65</option>
+						<% } %>
+						<%if ("65+".equals(request.getParameter("age"))) { %>
+							<option selected>65+</option>
+						<% } else { %>
+							<option>65+</option>
+						<% } %>
 				</select>
 				</td>
 				</tr>
@@ -116,22 +136,6 @@
 						value="Run Query" /></td>
 				</tr>
 			</table>
-			<%if (request.getParameter("cust")!=null) {
-			%>
-			<script type="text/javascript">
-			window.onload = function() {
-				<% if (request.getParameter("cust")!=null) { %>
-					document.getElementById("cust").value="<%=request.getParameter("cust")%>";
-				<% } if (request.getParameter("state")!=null && request.getParameter("state")!="") { %>
-					document.getElementById("state").value="<%=request.getParameter("state")%>";
-				<% } if (request.getParameter("categories")!=null && request.getParameter("categories")!="") { %>
-					document.getElementById("categories").value="<%=request.getParameter("categories")%>";
-				<% } if (request.getParameter("age")!=null && request.getParameter("state")!="") { %>
-					document.getElementById("age").value="<%=request.getParameter("age")%>";
-				<% } %>
-			}
-			</script>
-			<% } %>
 		</form>
 	</center>
 	<% 
@@ -622,7 +626,7 @@
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=cat%>"></input>
 			<input type="hidden" name="categories" value="<%=cat%>"></input>
-			<input type="hidden" name="cust" value="<%=request.getParameter("cust")%>" />
+			<input type="hidden" name="cust" value="<%=cust%>" />
 			<button type="submit">Next 20 <%=request.getParameter("cust") %></button>
 			</form>
 			<form action="salesAnalytics.jsp" method="post">
@@ -635,7 +639,7 @@
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=cat%>"></input>
 			<input type="hidden" name="categories" value="<%=cat%>"></input>
-			<input type="hidden" name="cust" value="<%=request.getParameter("cust")%>" />
+			<input type="hidden" name="cust" value="<%=cust%>" />
 			<button type="submit">Next 10 products</button>
 			</form>
 		<%
@@ -777,7 +781,7 @@
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=states%>"></input>
 			<input type="hidden" name="categories" value="<%=cat%>"></input>
-			<input type="hidden" name="cust" value="<%=request.getParameter("cust")%>" />
+			<input type="hidden" name="cust" value="<%=cust%>" />
 			<button type="submit">Next 20 <%=request.getParameter("cust") %></button>
 			</form>
 			<%}
@@ -788,6 +792,7 @@
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=states%>"></input>
 			<input type="hidden" name="categories" value="<%=cat%>"></input>
+			<input type="hidden" name="cust" value="<%=cust%>" />
 			<button type="submit">Next 10 products</button>
 			</form>
 		
