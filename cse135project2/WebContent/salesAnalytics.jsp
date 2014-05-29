@@ -120,7 +120,7 @@
 			%>
 			<script type="text/javascript">
 			window.onload = function() {
-				<% if (request.getParameter("cust")=="customers" || request.getParameter("cust")=="states") { %>
+				<% if (request.getParameter("cust")!=null) { %>
 					document.getElementById("cust").value="<%=request.getParameter("cust")%>";
 				<% } if (request.getParameter("state")!=null && request.getParameter("state")!="") { %>
 					document.getElementById("state").value="<%=request.getParameter("state")%>";
@@ -389,10 +389,29 @@
 		}
 		query+=" ON sales.pid=products.id) ON sales.uid=users.id"; //"WHERE true";
 		if(cust.equals("states")){
+			if(!age.equals("All")&&!age.equals("65+")){
+				query+=" AND users.age>="+age.substring(0,2)+" AND users.age<= "+age.substring(3)+" ";
+			}
+			else if(!age.equals("All")&&age.equals("65+")){
+				query+=" AND users.age>="+age.substring(0,2)+" ";
+			}
 			query+=") on users.state=states.name";
 			
 		}
 		query+=" WHERE true";
+		if(cust.equals("states")) {
+			if(!states.equals("All")){
+			 	query+=" AND states.name=\'"+states+"\' ";
+			}
+		} else {
+			if(!age.equals("All")&&!age.equals("65+")){
+				query+=" AND users.age>="+age.substring(0,2)+" AND users.age<= "+age.substring(3)+" ";
+			}
+			else if(!age.equals("All")&&age.equals("65+")){
+				query+=" AND users.age>="+age.substring(0,2)+" ";
+			}
+		}
+		/*
 		if(!states.equals("All")){
 		 	query+=" AND users.state=\'"+states+"\' ";
 		}
@@ -402,6 +421,7 @@
 		else if(!age.equals("All")&&age.equals("65+")){
 			query+=" AND users.age>="+age.substring(0,2)+" ";
 		}
+		*/
 		String tempColW;
 		String tempMatW;
 		if(!cust.equals("states")){
