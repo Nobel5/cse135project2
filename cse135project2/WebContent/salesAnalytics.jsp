@@ -415,17 +415,18 @@
 				query+=" AND users.age>="+age.substring(0,2)+" ";
 			}
 		}
-		/*
-		if(!states.equals("All")){
-		 	query+=" AND users.state=\'"+states+"\' ";
+		if (!cust.equals("states")) {
+			if(!states.equals("All")){
+			 	query+=" AND users.state=\'"+states+"\' ";
+			}
+			if(!age.equals("All")&&!age.equals("65+")){
+				query+=" AND users.age>="+age.substring(0,2)+" AND users.age<= "+age.substring(3)+" ";
+			}
+			else if(!age.equals("All")&&age.equals("65+")){
+				query+=" AND users.age>="+age.substring(0,2)+" ";
+			}
 		}
-		if(!age.equals("All")&&!age.equals("65+")){
-			query+=" AND users.age>="+age.substring(0,2)+" AND users.age<= "+age.substring(3)+" ";
-		}
-		else if(!age.equals("All")&&age.equals("65+")){
-			query+=" AND users.age>="+age.substring(0,2)+" ";
-		}
-		*/
+		
 		String tempColW;
 		String tempMatW;
 		if(!cust.equals("states")){
