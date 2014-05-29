@@ -251,7 +251,7 @@
 							+ colCategory
 							+ " GROUP BY products.id ORDER BY products.id";
 				} */
-				
+				System.out.println("STATEMENT NOBEL\n"+colQuery);
 				colRs = colSt.executeQuery(colQuery);
 				for (int i=1; i<=10; i++) {
 			%>
