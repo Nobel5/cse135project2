@@ -130,6 +130,58 @@
 		String num=request.getParameter("num");
 		String states=request.getParameter("state");
 		System.out.println("into first statements");
+		String colQueryA=request.getParameter("colQuery");
+		String tempMatA=request.getParameter("tempMat");
+		String tempColA=request.getParameter("tempCol");
+		if(colQueryA!=null){
+			try{
+				Statement status=conn.createStatement();
+				ResultSet bob=status.executeQuery(tempColA);
+				System.out.println("STATEMENT 4\n"+tempMatA);
+				Statement st=conn.createStatement();
+				ResultSet sam=st.executeQuery(tempMatA);
+				//System.out.println("3");
+				while(bob.next()){
+					String name=bob.getString("name");
+					String sum=bob.getString("sq");
+					if(bob.getString("sq")==null){
+						sum="0";
+					}
+					Statement sTotal=conn.createStatement();
+					//System.out.println("INSERT INTO tempCol(name,total) VALUES(\""+name+"\","+sum+")");
+					sTotal.execute("INSERT INTO tempCol(name,total) VALUES(\'"+name+"\',"+sum+")");
+					//System.out.println("past it");
+				}
+				System.out.println("4");
+				while(sam.next()){
+					String name=sam.getString("name");
+					String pid= sam.getString("id");
+					String sum=sam.getString("pi");
+					Statement gg=conn.createStatement();
+					//System.out.println("INSERT INTO tempMatrix(name,pid,total) VALUES(\""+name+"\","+pid+","+sum+")");
+					gg.executeUpdate("INSERT INTO tempMatrix(name,pid,total) VALUES(\'"+name+"\',"+pid+","+sum+")");
+					
+				}
+				
+				Statement colSt=conn.createStatement();
+				ResultSet productRs = colSt.executeQuery(colQueryA);
+				while(productRs.next()) {
+					Statement productSt3 = conn.createStatement();
+					String pName = productRs.getString("name");
+					int pTotal = productRs.getInt("total");
+					int pId = productRs.getInt("id");
+					productSt3.executeUpdate("INSERT INTO tempProduct(name,id,total) VALUES (\'"+pName+"\',"+pId+","+pTotal+")");
+				}	
+			}
+			catch (SQLException sqle) {
+				System.out.println("at the very end here");
+			    out.println(sqle.getMessage());
+			} catch (Exception e) {
+				System.out.println("Is an execption");
+			    out.println(e.getMessage());
+			}
+		} 
+		
 		if(newTable!=null){
 			
 			%>
@@ -173,6 +225,14 @@
 						+ " WHERE products.id>0 AND products.id<11"
 						+ " GROUP BY products.id ORDER BY products.id";
 				//System.out.println(colQuery);
+			/* 	if(colCategory.equals("")){
+				 	colQuery = "SELECT products.name,products.id, SUM(sales.quantity*sales.price) AS total"
+							+ " FROM products LEFT OUTER JOIN (sales JOIN users ON (sales.uid=users.id)"
+							+ colState + colAge
+							+ ") ON (products.id=sales.pid) JOIN categories ON (products.cid=categories.id)"
+							+ colCategory
+							+ " GROUP BY products.id ORDER BY products.id";
+				} */
 				
 				colRs = colSt.executeQuery(colQuery);
 				for (int i=1; i<=10; i++) {
@@ -432,7 +492,7 @@
 		System.out.println("STATEMENT 3\n"+tempColW);
 		conn.setAutoCommit(true);
 		conn.setAutoCommit(false);
-		Statement status=conn.createStatement();
+		/* Statement status=conn.createStatement();
 		ResultSet bob=status.executeQuery(tempColW);
 		System.out.println("STATEMENT 4\n"+tempMatW);
 		Statement st=conn.createStatement();
@@ -457,7 +517,7 @@
 			//System.out.println("INSERT INTO tempMatrix(name,pid,total) VALUES(\""+name+"\","+pid+","+sum+")");
 			gg.executeUpdate("INSERT INTO tempMatrix(name,pid,total) VALUES(\'"+name+"\',"+pid+","+sum+")");
 			
-		}
+		} */
 		System.out.println("5");
 		////////////
 		String selectedType = request.getParameter("cust");
@@ -491,20 +551,23 @@
 						+ colCategory
 						+ " GROUP BY products.id ORDER BY products.id";
 				//System.out.println(colQuery);
-		ResultSet productRs = colSt.executeQuery(colQuery);
+/* 		ResultSet productRs = colSt.executeQuery(colQuery);
 		while(productRs.next()) {
 			Statement productSt3 = conn.createStatement();
 			String pName = productRs.getString("name");
 			int pTotal = productRs.getInt("total");
 			int pId = productRs.getInt("id");
 			productSt3.executeUpdate("INSERT INTO tempProduct(name,id,total) VALUES (\'"+pName+"\',"+pId+","+pTotal+")");
-		}
+		} */
 		
 		%>
 			</table>
 			<form action="salesAnalytics.jsp" method="post">
 			<input type="hidden" name="lastname" value="<%=last%>"></input>
 			<input type="hidden" name="num" value="1"></input>
+			<input type="hidden" name="tempCol" value="<%=tempColW%>">
+			<input type="hidden" name="tempMat" value="<%=tempMatW%>">
+			<input type="hidden" name="colQuery" value="<%=colQuery%>">
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=cat%>"></input>
 			<input type="hidden" name="categories" value="<%=cat%>"></input>
@@ -512,6 +575,9 @@
 			</form>
 			<form action="salesAnalytics.jsp" method="post">
 			<input type="hidden" name="lastname" value=""></input>
+			<input type="hidden" name="tempCol" value="<%=tempColW%>">
+			<input type="hidden" name="tempMat" value="<%=tempMatW%>">
+			<input type="hidden" name="colQuery" value="<%=colQuery%>">
 			<input type="hidden" name="num" value="11"></input>
 			<input type="hidden" name="age" value="<%=age%>"></input>
 			<input type="hidden" name="state" value="<%=cat%>"></input>
