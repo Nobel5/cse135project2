@@ -162,48 +162,38 @@
 				Statement st=conn.createStatement();
 				ResultSet sam=st.executeQuery(tempMatA);
 				System.out.println("3");
-				String firstW="";
 				while(bob.next()){
 					String name=bob.getString("name");
 					String sum=bob.getString("sq");
 					if(bob.getString("sq")==null){
 						sum="0";
 					}
-					
+					Statement sTotal=conn.createStatement();
 					//System.out.println("INSERT INTO tempCol(name,total) VALUES(\""+name+"\","+sum+")");
-					firstW+=" INSERT INTO tempCol(name,total) VALUES(\'"+name+"\',"+sum+");";
+					sTotal.execute("INSERT INTO tempCol(name,total) VALUES(\'"+name+"\',"+sum+")");
 					//System.out.println("past it");
 				}
-				Statement sTotal=conn.createStatement();
-				sTotal.executeUpdate(firstW);
 				System.out.println("4");
-				String second="";
 				while(sam.next()){
 					String name=sam.getString("name");
 					String pid= sam.getString("pname");
 					String sum=sam.getString("pi");
-					
+					Statement gg=conn.createStatement();
 					//System.out.println("INSERT INTO tempMatrix(name,pid,total) VALUES(\""+name+"\","+pid+","+sum+")");
-					second+=" INSERT INTO tempMatrix(name,pname,total) VALUES(\'"+name+"\',\'"+pid+"\',"+sum+");";
+					gg.executeUpdate("INSERT INTO tempMatrix(name,pname,total) VALUES(\'"+name+"\',\'"+pid+"\',"+sum+")");
 					
 				}
-				Statement gg=conn.createStatement();
-				gg.executeUpdate(second);
 				
 				Statement colSt=conn.createStatement();
 				System.out.println("6");
 				ResultSet productRs = colSt.executeQuery(colQueryA);
-				String thrid="";
 				while(productRs.next()) {
-					
+					Statement productSt3 = conn.createStatement();
 					String pName = productRs.getString("name");
 					int pTotal = productRs.getInt("total");
 					int pId = productRs.getInt("id");
-					thrid+=" INSERT INTO tempProduct(name,pid,total) VALUES (\'"+pName+"\', "+pId+","+pTotal+");";
+					productSt3.executeUpdate("INSERT INTO tempProduct(name,pid,total) VALUES (\'"+pName+"\', "+pId+","+pTotal+")");
 				}
-				Statement productSt3 = conn.createStatement();
-				productSt3.executeUpdate(thrid);
-				
 				System.out.println("finishes temp tables");
 			}
 			catch (SQLException sqle) {
